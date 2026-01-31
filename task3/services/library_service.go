@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"task3/models"
 )
 
@@ -128,7 +127,6 @@ func (l *Library) AddBook(book models.Book) error {
 
 	// Add book to the map
 	l.Books[book.ID] = book
-	fmt.Println(l.Books[book.ID])
 	return nil
 }
 

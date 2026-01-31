@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -66,11 +67,24 @@ func (c *LibraryController) getInput() string {
 	return strings.TrimSpace(c.Scanner.Text())
 }
 
+func (c *LibraryController) getIntInput() (int, error) {
+	input := c.getInput()
+	intInput, err := strconv.Atoi(input)
+	if err != nil {
+		return 0, errors.New("Input should be an Integer")
+	}
+	return intInput, nil
+}
+
 //* --- Helper Handler Methods ---
 func (c *LibraryController) handleAddBook() {
 	fmt.Print("Enter Book ID (int): ")
-	idStr := c.getInput()
-	id, _ := strconv.Atoi(idStr)
+	id, inputErr := c.getIntInput()
+
+	if inputErr != nil {
+		fmt.Println(inputErr)
+		return
+	}
 
 	fmt.Print("Enter Title: ")
 	title := c.getInput()
@@ -86,7 +100,7 @@ func (c *LibraryController) handleAddBook() {
 	}
 
 	err := c.Service.AddBook(newBook)
-	if err != nil  {
+	if err == nil  {
 		fmt.Println("Book added successfully!")
 		return
 	} else {
@@ -96,8 +110,12 @@ func (c *LibraryController) handleAddBook() {
 
 func (c *LibraryController) handleRemoveBook() {
 	fmt.Print("Enter Book ID to remove: ")
-	idStr := c.getInput()
-	id, _ := strconv.Atoi(idStr)
+	id, inputErr := c.getIntInput()
+
+	if inputErr != nil {
+		fmt.Println(inputErr)
+		return
+	}
 
 	err := c.Service.RemoveBook(id)
 	if err != nil {
@@ -109,12 +127,20 @@ func (c *LibraryController) handleRemoveBook() {
 
 func (c *LibraryController) handleBorrowBook() {
 	fmt.Print("Enter Book ID: ")
-	bIDStr := c.getInput()
-	bookID, _ := strconv.Atoi(bIDStr)
+	bookID, bookError := c.getIntInput()
+	if bookError != nil {
+		fmt.Println(bookError)
+		return
+	}
+	
 
 	fmt.Print("Enter Member ID: ")
-	mIDStr := c.getInput()
-	memberID, _ := strconv.Atoi(mIDStr)
+	memberID, memberError := c.getIntInput()
+	if memberError != nil {
+		fmt.Println(memberError)
+		return
+	}
+	
 
 	err := c.Service.BorrowBook(bookID, memberID)
 	if err != nil {
@@ -126,12 +152,19 @@ func (c *LibraryController) handleBorrowBook() {
 
 func (c *LibraryController) handleReturnBook() {
 	fmt.Print("Enter Book ID: ")
-	bIDStr := c.getInput()
-	bookID, _ := strconv.Atoi(bIDStr)
+	bookID, bookError := c.getIntInput()
+	if bookError != nil {
+		fmt.Println(bookError)
+		return
+	}
+	
 
 	fmt.Print("Enter Member ID: ")
-	mIDStr := c.getInput()
-	memberID, _ := strconv.Atoi(mIDStr)
+	memberID, memberError := c.getIntInput()
+	if memberError != nil {
+		fmt.Println(memberError)
+		return
+	}
 
 	err := c.Service.ReturnBook(bookID, memberID)
 	if err != nil {
@@ -155,8 +188,11 @@ func (c *LibraryController) handleListAvailable() {
 
 func (c *LibraryController) handleListBorrowed() {
 	fmt.Print("Enter Member ID: ")
-	mIDStr := c.getInput()
-	memberID, _ := strconv.Atoi(mIDStr)
+	memberID, memberError := c.getIntInput()
+	if memberError != nil {
+		fmt.Println(memberError)
+		return
+	}
 
 	books, err := c.Service.ListBorrowedBooks(memberID)
 	if err != nil {
