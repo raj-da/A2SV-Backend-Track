@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"task3/models"
 )
 
@@ -121,12 +122,13 @@ func (l *Library) AddBook(book models.Book) error {
 	_, bookExists := l.Books[book.ID]
 
 	// Check if the book already exists in the map
-	if !bookExists {
+	if bookExists {
 		return errors.New("book already exists in the Library")
 	}
 
 	// Add book to the map
 	l.Books[book.ID] = book
+	fmt.Println(l.Books[book.ID])
 	return nil
 }
 

@@ -68,14 +68,14 @@ func (c *LibraryController) getInput() string {
 
 //* --- Helper Handler Methods ---
 func (c *LibraryController) handleAddBook() {
-	fmt.Println("Enter Book ID (int): ")
+	fmt.Print("Enter Book ID (int): ")
 	idStr := c.getInput()
 	id, _ := strconv.Atoi(idStr)
 
-	fmt.Println("Enter Title: ")
+	fmt.Print("Enter Title: ")
 	title := c.getInput()
 
-	fmt.Println("Enter Author")
+	fmt.Print("Enter Author: ")
 	author := c.getInput()
 
 	newBook := models.Book {
