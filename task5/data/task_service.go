@@ -1,11 +1,9 @@
 package data
 
 import (
-	"net/http"
+	"errors"
 	"task-manager/models"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 // Dummy task data
@@ -15,73 +13,40 @@ var tasks = []models.Task{
     {ID: "3", Title: "Task 3", Description: "Third task", DueDate: time.Now().AddDate(0, 0, 2), Status: "Completed"},
 }
 
-// GetAllTasks returns json representaton of all tasks
-func GetAllTasks(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"task": tasks})
+func GetAllTasks() []models.Task {
+	return tasks
 }
 
-// GetTaskByID returns a json representation of a task
-func GetTaskByID(c *gin.Context) {
-	id := c.Param("id") // get id from the path
-	// iterate over the tasks and find the task
+func GetTaskByID(id string) (models.Task, error) {
 	for _, task := range tasks {
 		if task.ID == id {
-			c.JSON(http.StatusOK, task)
-			return
+			return task, nil
 		}
 	}
-	c.JSON(http.StatusNotFound, gin.H{"error": "Task not found"})
+	return models.Task{}, errors.New("task not found")
 }
 
-// UpdateTask updates a task
-func UpdateTask(c *gin.Context) {
-	id := c.Param("id") // get ID from the path
+func CreateTask(task models.Task) {
+	tasks = append(tasks, task)
+}
 
-	// convert json to Task struct
-	var updatedTask models.Task
-	if err := c.BindJSON(&updatedTask); err != nil {
-		return
-	}
-
-	// Look for the specific task and update
+func UpdateTask(id string, updatedTask models.Task) error {
 	for ind, task := range tasks {
 		if task.ID == id {
-			if updatedTask.Title != "" {
-				task.Title = updatedTask.Title
-			}
-			if updatedTask.Description != "" {
-				task.Description = updatedTask.Description
-			}
-			tasks[ind] = task
-			c.JSON(http.StatusOK, gin.H{"message": "Task updated"})
-			return
+			updatedTask.ID = id
+			tasks[ind] = updatedTask
+			return  nil
 		}
 	}
-
-	// If task not found
-	c.JSON(http.StatusNotFound, gin.H{"message": "Task not found"})
+	return errors.New("task not found")
 }
 
-// DeleteTask removes a task
-func DeleteTask(c *gin.Context) {
-	id := c.Param("id")
+func DeleteTask(id string) error {
 	for ind, task := range tasks {
 		if task.ID == id {
-			tasks = append(tasks[:ind],tasks[ind+1:]...)
-			c.JSON(http.StatusOK, gin.H{"message":"Task removed"})
-			return
+			tasks = append(tasks[:ind], tasks[ind+1:]...)
+			return nil
 		}
 	}
-
-	c.JSON(http.StatusNotFound, gin.H{"message": "Task not found"})
-}
-
-// CreateTask creates a new task
-func CreateTask(c *gin.Context) {
-	var newTask models.Task
-	if err := c.BindJSON(&newTask); err != nil {
-		return
-	}
-	tasks = append(tasks, newTask)
-	c.JSON(http.StatusCreated, gin.H{"message": "Task created"})
+	return errors.New("task not found")
 }
