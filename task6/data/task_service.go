@@ -7,8 +7,6 @@ import (
 	"os"
 	"task-manager/models"
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -18,7 +16,8 @@ var collection *mongo.Collection
 
 // ConnectDB initialize the MongoDB connection 
 func ConnectDB() {
-	clientOptions := options.Client().ApplyURI(os.Getenv("MONGODB_URL"))
+	uri := os.Getenv("MONGODB_URL")
+	clientOptions := options.Client().ApplyURI(uri)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -52,7 +51,7 @@ func GetAllTasks() ([]models.Task, error) {
 }
 
 func GetTaskByID(id string) (models.Task, error) {
-	objID, _ := primitive.ObjectIDFromHex(id)
+	objID, _ := bson.ObjectIDFromHex(id)
 	var task models.Task
 	err := collection.FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&task)
 	return task, err
@@ -63,12 +62,12 @@ func CreateTask(task models.Task) (models.Task, error) {
 	if err != nil {
 		return models.Task{}, err
 	}
-	task.ID = res.InsertedID.(primitive.ObjectID)
+	task.ID = res.InsertedID.(bson.ObjectID)
 	return task, nil
 }
 
 func UpdateTask(id string, updatedTask models.Task) error {
-	objID, _ := primitive.ObjectIDFromHex(id)
+	objID, _ := bson.ObjectIDFromHex(id)
 	update := bson.M{
 		"$set": bson.M{
 			"title": 		updatedTask.Title,
@@ -85,7 +84,7 @@ func UpdateTask(id string, updatedTask models.Task) error {
 }
 
 func DeleteTask(id string) error {
-	objID, _ := primitive.ObjectIDFromHex(id)
+	objID, _ := bson.ObjectIDFromHex(id)
 	result, err := collection.DeleteOne(context.TODO(), bson.M{"_id": objID})
 	if result.DeletedCount == 0 {
 		return errors.New("no task found to delete")

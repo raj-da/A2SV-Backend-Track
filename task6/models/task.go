@@ -2,12 +2,12 @@ package models
 
 import (
 	"time"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 
 type Task struct {
-	ID 			primitive.ObjectID `json:"id,omitempty" bson:"_id, omitempty"`
+	ID 			bson.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
 	Title 		string             `json:"title" bson:"title" binding:"required"`
 	Description string             `json:"description" bson:"description"`
 	DueDate 	time.Time          `json:"due_date" bson:"due_date"`

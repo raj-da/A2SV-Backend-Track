@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"task-manager/data"
 	"task-manager/models"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,12 +28,13 @@ func GetTask(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
-func CreateTask (c *gin.Context) {
+func CreateTask(c *gin.Context) {
 	var task models.Task
 	if err := c.ShouldBindJSON(&task); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	
 	createTask, err := data.CreateTask(task)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
@@ -44,7 +44,6 @@ func CreateTask (c *gin.Context) {
 }
 
 func UpdateTask(c *gin.Context) {
-	// TODO: test by ommiting a field for update 
 	id := c.Param("id")
 	var task models.Task
 	if err := c.ShouldBindJSON(&task); err != nil {
