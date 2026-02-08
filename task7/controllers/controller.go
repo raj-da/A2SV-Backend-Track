@@ -51,8 +51,9 @@ func Login(c *gin.Context) {
 func Promote(c *gin.Context) {
 	username := c.Param("username")
 	if err := data.PromotUser(username); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"message": "User promoted to admin"})
+		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 	}
+	c.JSON(http.StatusOK, gin.H{"message": "User promoted to admin"})
 }
 
 // Helper function
@@ -107,7 +108,7 @@ func CreateTask(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Delete"})
+	c.JSON(http.StatusCreated, gin.H{"message": "task created"})
 }
 
 func UpdateTask(c *gin.Context) {
