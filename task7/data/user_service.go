@@ -42,7 +42,7 @@ func PromotUser(username string) error {
 	_, err := UserCollection.UpdateOne(
 		context.TODO(), 
 		bson.M{"username": username}, 
-		bson.M{"$set": bson.M{"role": "admin"}},
+		bson.M{"$set": bson.M{"role": "Admin"}},
 	)
 	return err
 }
