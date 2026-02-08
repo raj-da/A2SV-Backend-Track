@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"task-manager/models"
+	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -12,8 +13,10 @@ import (
 var UserCollection *mongo.Collection
 
 func RegisterUser(user models.User) error {
-	// TODO: add correct context
-	count, _ := UserCollection.CountDocuments(context.TODO(), bson.M{})
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	count, _ := UserCollection.CountDocuments(ctx, bson.M{})
 	// 1. Check if first user
 	if count == 0 {
 		user.Role = "Admin"
@@ -31,16 +34,21 @@ func RegisterUser(user models.User) error {
 }
 
 func GetUserByUsername(username string) (models.User, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
 	var user models.User
-	// TODO: add correct context
-	err := UserCollection.FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+	
+	err := UserCollection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	return user, err
 }
 
 func PromotUser(username string) error {
-	// TODO: add correct context
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
 	_, err := UserCollection.UpdateOne(
-		context.TODO(), 
+		ctx, 
 		bson.M{"username": username}, 
 		bson.M{"$set": bson.M{"role": "Admin"}},
 	)
