@@ -21,7 +21,8 @@ func ConnectDB() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(clientOptions) // TODO: add context after fixing import issue
+	client, err := mongo.Connect(clientOptions) 
+
 	if err != nil {
 		log.Fatal(err)
 	}
