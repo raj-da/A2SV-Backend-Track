@@ -10,11 +10,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var JwtSecret = []byte(os.Getenv("JWT_SECRET_KEY"))
-
-type Claims struct {
-	
-}
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -34,13 +29,16 @@ func AuthMiddleware() gin.HandlerFunc {
             return
         }
 
+		var secretKey = os.Getenv("JWT_SECRET_KEY")
+		var JwtSecret = []byte(secretKey)
+
 		tokenString := parts[1]
 		claims := &models.Claims{}
 
 		token, err := jwt.ParseWithClaims(
 			tokenString,
 			claims,
-			func(token *jwt.Token) (interface{}, error) {
+			func(token *jwt.Token) (any, error) {
 				// Validate signing algorithm
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, jwt.ErrSignatureInvalid
@@ -58,7 +56,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		// Store claims in context
-		c.Set("username", claims.ID)
+		c.Set("username", claims.Username)
 		c.Set("role", claims.Role)
 
 		c.Next()
