@@ -44,7 +44,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user User) error
 	GetByUsername(ctx context.Context, username string) (User, error)
 	UpdateRole(ctx context.Context, username string, role string) error
-	Count(ctx context.Context) (int64, error)
+	// Count(ctx context.Context) (int64, error)
 }
 
 //* --- --- --- --- --- ---//
