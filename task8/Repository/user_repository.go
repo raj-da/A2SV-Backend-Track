@@ -41,3 +41,8 @@ func (ur *userRepository) UpdateRole(ctx context.Context, username, role string)
 
 	return err
 }
+
+func (ur *userRepository) Count(ctx context.Context) (int64, error) {
+	count, err := ur.db.Collection(ur.collection).CountDocuments(ctx, bson.M{})
+	return count, err
+}
