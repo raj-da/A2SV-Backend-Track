@@ -52,6 +52,11 @@ func (tc *TaskController) Create(c *gin.Context) {
 		return
 	}
 
+	if err := tc.TaskUsecase.Create(c, task); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	c.JSON(http.StatusCreated, gin.H{"message": "Task created"})
 }
 
@@ -63,10 +68,60 @@ func (tc *TaskController) Update(c *gin.Context) {
 		return
 	}
 
-	tc.TaskUsecase.Update(c, id, task)
+	if err := tc.TaskUsecase.Update(c, id, task); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return 
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Task updated"})
 }
 
 
 //* --- --- --- --- --- ---//
 //*     User Controller    //
 //* --- --- --- --- --- ---//
+
+type UserController struct {
+	UserUsecase domain.UserUsecase
+}
+
+func (uc *UserController) register(c *gin.Context) {
+	var user domain.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return 
+	}
+
+	if err := uc.UserUsecase.Register(c, user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"message": "Registration Successful"})
+}
+
+func (uc *UserController) Login(c *gin.Context) {
+	var user domain.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	token, err := uc.UserUsecase.Login(c, user.Username, user.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
+
+func (uc *UserController) Promote(c *gin.Context) {
+	username := c.Param("u")
+	if err := uc.UserUsecase.PromoteUser(c, username); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User promoted to admin"})
+}
