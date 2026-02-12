@@ -85,7 +85,7 @@ type UserController struct {
 	UserUsecase domain.UserUsecase
 }
 
-func (uc *UserController) register(c *gin.Context) {
+func (uc *UserController) Register(c *gin.Context) {
 	var user domain.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
