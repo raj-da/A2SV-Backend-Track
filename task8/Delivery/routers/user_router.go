@@ -2,6 +2,7 @@ package routers
 
 import (
 	"task-manager/Delivery/controllers"
+	infrastructure "task-manager/Infrastructure"
 	repository "task-manager/Repository"
 	usecases "task-manager/Usecases"
 
@@ -20,7 +21,7 @@ func NewUserRouter(group *gin.RouterGroup, db *mongo.Database, collection string
 	uc := &controllers.UserController{UserUsecase: useCase}
 
 	// 4. Map the paths
-	group.POST("/user", uc.Register)
-	group.POST("/user", uc.Login)
-	group.PATCH("/user/:u", uc.Promote)
+	group.POST("/register", uc.Register)
+	group.POST("/login", uc.Login)
+	group.PATCH("/promote/:u", uc.Promote).Use(infrastructure.AuthMiddleware(), infrastructure.AdminMiddleware())
 }
