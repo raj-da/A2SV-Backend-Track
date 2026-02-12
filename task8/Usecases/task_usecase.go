@@ -16,15 +16,15 @@ func NewTaskUsercase(repo domain.TaskRepository) domain.TaskUsecase {
 }
 
 func (tu *taskUsercase) Create(ctx context.Context, task domain.Task) error {
-	return tu.Create(ctx, task)
+	return tu.taskRepo.Create(ctx, task)
 }
 
 func (tu *taskUsercase) GetByID(ctx context.Context, id string) (domain.Task, error) {
-	return tu.GetByID(ctx, id)
+	return tu.taskRepo.GetByID(ctx, id)
 }
 
 func (tu *taskUsercase) GetAll(ctx context.Context) ([]domain.Task, error) {
-	return tu.GetAll(ctx)
+	return tu.taskRepo.GetAll(ctx)
 }
 
 func (tu *taskUsercase) Update(ctx context.Context, id string, task domain.Task) error {
