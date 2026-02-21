@@ -12,11 +12,6 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-		// if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		// 	c.Abort()
-		// 	return
-		// }
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
