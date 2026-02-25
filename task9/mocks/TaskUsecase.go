@@ -4,7 +4,7 @@ package mocks
 
 import (
 	context "context"
-	domain "task-manager/domain"
+	domain "task-manager/Domain"
 
 	mock "github.com/stretchr/testify/mock"
 )
