@@ -34,6 +34,25 @@ func (ur *userRepository) GetByUsername(ctx context.Context, username string) (d
 	return user, nil
 }
 
+func (ur *userRepository) GetByID(ctx context.Context, userID string) (domain.User, error) {
+	objID, _ := bson.ObjectIDFromHex(userID)
+	var user domain.User
+	res := ur.db.Collection(ur.collection).FindOne(ctx, bson.M{"_id":objID})
+	if err := res.Decode(&user); err != nil {
+		return domain.User{}, err
+	}
+	return user, nil
+}
+
+func (ur *userRepository) GetByObjectID(ctx context.Context, userID bson.ObjectID) (domain.User, error) {
+	var user domain.User
+	res := ur.db.Collection(ur.collection).FindOne(ctx, bson.M{"_id":userID})
+	if err := res.Decode(&user); err != nil {
+		return domain.User{}, err
+	}
+	return user, nil
+}
+
 func (ur *userRepository) UpdateRole(ctx context.Context, username, role string) error {
 	_, err := ur.db.Collection(ur.collection).UpdateOne(ctx, bson.M{"username": username}, bson.M{
 		"$set": bson.M{"role": role},
