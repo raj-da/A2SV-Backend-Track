@@ -12,10 +12,11 @@ func SetUp(db *mongo.Database) *gin.Engine {
 
 	taskCollection := "task"
 	userCollection := "user"
+	refreshTokenCollection := "refresh_token"
 
 	// PUBLIC ROUTES
 	public := router.Group("/auth")
-	NewUserRouter(public, db, userCollection)
+	NewUserRouter(public, db, []string{userCollection, refreshTokenCollection})
 
 	protected := router.Group("/api")
 	// Add middleware to protected routs
