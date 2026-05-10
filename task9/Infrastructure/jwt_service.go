@@ -1,10 +1,10 @@
 package infrastructure
 
 import (
+	"fmt"
 	"os"
-	domain "task-manager/Domain"
 	"time"
-
+	domain "task-manager/Domain"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -18,10 +18,19 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(user *domain.User) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+type jwtService struct {
+	secretKey string
+}
 
-	claims := Claims{
+func NewJWTService() *jwtService {
+	return &jwtService{
+		secretKey: os.Getenv("JWT_SECRET_KEY"),
+	}
+} 
+
+func (j *jwtService) GenerateAccessToken(user domain.User) (string, error) {
+	expirationTime := time.Now().Add(15 * time.Minute)
+	claims := Claims {
 		Username: user.Username,
 		Role: user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -32,7 +41,25 @@ func GenerateToken(user *domain.User) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	jwtSecret := []byte(os.Getenv("JWT_SECRET_KEY"))
+	return token.SignedString([]byte(j.secretKey))
+}
 
-	return token.SignedString(jwtSecret)
+func (j *jwtService) ValidateAccessToken(tokenStr string) (*domain.TokenClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenStr, &Claims{}, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
+		}
+		return []byte(j.secretKey), nil
+	})
+	
+	if err != nil {
+		return nil, fmt.Errorf("invalid token: %w", err)
+	}
+
+	claims, ok := token.Claims.(*domain.TokenClaims)
+	if !ok || !token.Valid {
+		return nil, fmt.Errorf("invalid token claims")
+	}
+
+	return claims, nil
 }
