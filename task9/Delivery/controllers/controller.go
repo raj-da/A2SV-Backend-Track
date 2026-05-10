@@ -107,13 +107,16 @@ func (uc *UserController) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := uc.UserUsecase.Login(c, user.Username, user.Password)
+	accessToken, refreshToken, err := uc.UserUsecase.Login(c, user.Username, user.Password)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	// set the refresh token in HttpOnly Cookie
+	c.SetCookie("refresh_token", refreshToken, 3600*24*7, "/refresh", "", true, true)
+
+	c.JSON(http.StatusOK, gin.H{"token": accessToken})
 }
 
 func (uc *UserController) Promote(c *gin.Context) {
@@ -124,4 +127,22 @@ func (uc *UserController) Promote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "User promoted to admin"})
+}
+
+func (uc *UserController) RefreshToken(c *gin.Context) {
+	cookie, err := c.Cookie("refresh_token")
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token missing"})
+		return
+	}
+
+	newAccessToken, err := uc.UserUsecase.Refresh(c, cookie)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired refresh token"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"access_token": newAccessToken,
+	})
 }
